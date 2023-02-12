@@ -6,7 +6,6 @@
 #include "SettingsManager.h"
 #include "WindControl.h"
 
-
 WindControl leftWind(WIND_LEFT);
 WindControl rightWind(WIND_RIGHT);
 
@@ -53,15 +52,11 @@ void setup() {
   leftWind.Begin(GPIO_NUM_17, 0, GPIO_NUM_12, 2);
   rightWind.Begin(GPIO_NUM_35, 1, GPIO_NUM_13, 3);
 
+
   LOGD_INFO("ready");
 }
 
-#define DATA_HZ 1000 / 60
-
-long lastDataSend = 0;
 
 void loop() {
-
   commander.read();
-
 }

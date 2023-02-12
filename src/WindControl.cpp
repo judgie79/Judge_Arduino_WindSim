@@ -6,14 +6,25 @@ WindControl::WindControl(uint8_t side)
     this->side = side;
 }
 
+#if defined(ESP32)
 void WindControl::Begin(uint8_t fanPin, uint16_t fanChannel, uint16_t servoPin, uint16_t servoChannel)
 {
     fan.Begin(fanPin, fanChannel);
-    fan.SetFanSpeed(0);
-
     servo.Begin(servoPin, servoChannel);
+    fan.SetFanSpeed(0);
     servo.SetPosition(0);
 }
+#else
+void Begin(uint8_t fanPin, uint16_t servoPin)
+{
+    fan.Begin(fanPin);
+    servo.Begin(servoPin);
+    fan.SetFanSpeed(0);
+    servo.SetPosition(0);
+}
+#endif
+
+
 
 WindControl::~WindControl()
 {

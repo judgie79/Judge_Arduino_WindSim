@@ -2,7 +2,11 @@
 #define __SETTINGSMANAGER_H
 #include "Arduino.h"
 #include <DebugOut.h>
-#include <Preferences.h>
+#if defined(ESP32)
+#include "PreferencesDataStore.h"
+#else
+#include "EEPROMDataStore.h"
+#endif
 #include "WindSimSettings.h"
 
 
@@ -12,8 +16,12 @@ typedef void(*SettingsChanged) (WindSimSettings);
 class SettingsManager
 {
 private:
-    /* data */
-    Preferences dataStore;
+#if defined(ESP32)
+    PreferencesDataStore dataStore;
+#else
+    EEPROMDataStore dataStore;
+#endif
+    
     SettingsChanged settingsChanged;
 public:
     SettingsManager();

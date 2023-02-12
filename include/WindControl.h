@@ -16,7 +16,11 @@ private:
     uint8_t side;
 public:
     WindControl(uint8_t side);
+    #if defined(ESP32)
     void Begin(uint8_t fanPin, uint16_t fanChannel, uint16_t servoPin, uint16_t servoChannel);
+    #else
+    void Begin(uint8_t fanPin, uint16_t servoPin);
+    #endif
     ~WindControl();
 
     void openValve(uint16_t degree);
