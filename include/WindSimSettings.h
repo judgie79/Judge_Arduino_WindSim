@@ -9,6 +9,7 @@ class WindSimSettings
         }
 
         bool settingsStored = false;
+        bool settingsLoaded = false;
         bool cockpitMode = false;
         bool cornerMode = false;
 

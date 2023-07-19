@@ -15,21 +15,22 @@ class WindSimCommander : public Commander
 {
 public:
 	WindSimCommander(SettingsManager* settingsManager, WindControl *leftWind, WindControl *rightWind);
+	//WindSimCommander(WindControl *leftWind, WindControl *rightWind);
 	void sendData();
 
 protected:
-	void readCmd(char key, String data);
+	void readCmd(char key, const char * data, uint8_t valueLength);
 
 private:
 	SettingsManager* settingsManager;
 
-	void onSetSettingsCommand(String value);
+	void onSetSettingsCommand(const char * value, uint8_t valueLength);
 
-	void onGetSettingsCommand(String value);
+	void onGetSettingsCommand(const char * value, uint8_t valueLength);
 
-	void onResetSettingsCommand(String value);
+	void onResetSettingsCommand(const char * value, uint8_t valueLength);
 
-	void onGetDataCommand(String value);
+	void onGetDataCommand(const char * value, uint8_t valueLength);
 
 	WindControl *leftWind;
 	WindControl *rightWind;

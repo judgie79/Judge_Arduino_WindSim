@@ -23,6 +23,8 @@ private:
 #endif
     
     SettingsChanged settingsChanged;
+
+    WindSimSettings currentSettings;
 public:
     SettingsManager();
 

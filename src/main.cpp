@@ -15,7 +15,6 @@ SpeedServoControl servo1;
 SpeedServoControl servo2;
 
 SettingsManager settingsManager;
-WindSimSettings settings;
 
 CommandStream cmdStream(new char[10]{
                       (char)CommandKey::HELLO,
@@ -35,7 +34,6 @@ CommandStream cmdStream(new char[10]{
 */
 WindSimCommander commander(&settingsManager, &leftWind, &rightWind);
 
-
 void onSettingsChange(WindSimSettings settings)
 {
   
@@ -43,14 +41,16 @@ void onSettingsChange(WindSimSettings settings)
 
 void setup() {
   Serial.begin(115200);
+  while (!Serial)
+  {
+    
+  }
+  
   delay(2000);
-  settings = settingsManager.loadSettings();
   cmdStream.setOutput(&Serial);
-   commander.begin(&cmdStream);
-  settingsManager.settingsChangeCallback(&onSettingsChange);
-
-  leftWind.Begin(GPIO_NUM_17, 0, GPIO_NUM_12, 2);
-  rightWind.Begin(GPIO_NUM_35, 1, GPIO_NUM_13, 3);
+  commander.begin(&cmdStream);
+  leftWind.Begin(GPIO_NUM_4, 0, GPIO_NUM_21, 2);
+  rightWind.Begin(GPIO_NUM_5, 1, GPIO_NUM_19, 3);
 
 
   LOGD_INFO("ready");

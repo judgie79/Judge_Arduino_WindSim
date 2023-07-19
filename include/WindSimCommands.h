@@ -14,7 +14,7 @@ enum class WindSimCommandKey : char {
 	GETSETTINGS = 'o',
 	RESETSETTINGS = 'n'
 };
-/*
+/*o#24
 
 enum class CommandKey: char {
   HELLO = 'h',              // Hello order to initiate communication with the Arduino
