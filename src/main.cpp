@@ -50,7 +50,7 @@ void setup() {
   cmdStream.setOutput(&Serial);
   commander.begin(&cmdStream);
   leftWind.Begin(GPIO_NUM_4, 0, GPIO_NUM_21, 2);
-  rightWind.Begin(GPIO_NUM_5, 1, GPIO_NUM_19, 3);
+  rightWind.Begin(GPIO_NUM_14, 1, GPIO_NUM_35, 3);
 
 
   LOGD_INFO("ready");
