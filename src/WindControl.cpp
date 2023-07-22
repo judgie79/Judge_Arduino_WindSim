@@ -37,7 +37,7 @@ void WindControl::openValve(uint16_t degree)
     if (this-side == WIND_LEFT) {
         servo.SetPosition(degree);
     } else {
-        servo.SetPosition(360 - degree);
+        servo.SetPosition(180 - degree);
     }
 }
 
@@ -49,5 +49,13 @@ void WindControl::setFanSpeed(uint16_t speed)
 void WindControl::setSpeed(uint16_t speed)
 {
     setFanSpeed(speed);
-    openValve(map(speed, 0, 255, 0, 90));
+
+    int t_speed = speed;
+    if (t_speed > 100) {
+        t_speed = 100;
+    }
+
+    int mapped = map(t_speed, 0, 100, 0, 90);
+
+    openValve(mapped);
 }
