@@ -2,23 +2,20 @@
 
 #if defined(ESP32)
 SettingsManager::SettingsManager()
-: dataStore("wind")
+    : dataStore("wind")
 {
 }
 #else
-    SettingsManager::SettingsManager()
-: dataStore("wind")
+SettingsManager::SettingsManager()
+    : dataStore("wind")
 {
 }
 #endif
 
-
-
 void SettingsManager::settingsChangeCallback(SettingsChanged settingsChanged)
-  {
+{
     this->settingsChanged = settingsChanged;
-  }
-
+}
 
 WindSimSettings SettingsManager::resetSettings()
 {
@@ -42,8 +39,17 @@ WindSimSettings SettingsManager::writeSettings(WindSimSettings settings)
     dataStore.writeBool(settings.cockpitModeAddress, settings.cockpitMode);
     dataStore.writeBool(settings.cornerModeAddress, settings.cornerMode);
 
+    dataStore.writeUShort(settings.valveMaxOpenSpeedAddress, settings.valveMaxOpenSpeed);
+    dataStore.writeUShort(settings.fanMaxKmhAddress, settings.fanMaxKmh);
+    dataStore.writeUShort(settings.fanPercentageAddress, settings.fanPercentage);
+
     settings.cockpitMode = dataStore.readBool(settings.cockpitModeAddress);
-    settings.cornerMode = dataStore.readBool(settings.cornerModeAddress);    
+    settings.cornerMode = dataStore.readBool(settings.cornerModeAddress);
+
+    settings.valveMaxOpenSpeed = dataStore.readUShort(settings.valveMaxOpenSpeedAddress);
+    settings.fanMaxKmh = dataStore.readUShort(settings.fanMaxKmhAddress);
+    settings.fanPercentage = dataStore.readUShort(settings.fanPercentageAddress);
+
     dataStore.end();
 
     if (this->settingsChanged != nullptr)
@@ -58,7 +64,8 @@ WindSimSettings SettingsManager::writeSettings(WindSimSettings settings)
 
 WindSimSettings SettingsManager::loadSettings()
 {
-    if (!currentSettings.settingsLoaded) {
+    if (!currentSettings.settingsLoaded)
+    {
         dataStore.begin(true);
         currentSettings.settingsStored = dataStore.readBool(currentSettings.settingsStoredAddress);
         dataStore.end();
@@ -70,10 +77,15 @@ WindSimSettings SettingsManager::loadSettings()
             dataStore.writeBool(currentSettings.settingsStoredAddress, true);
             currentSettings.settingsStored = true;
             dataStore.end();
-        } else {
+        }
+        else
+        {
             dataStore.begin();
             currentSettings.cockpitMode = dataStore.readBool(currentSettings.cockpitModeAddress);
-            currentSettings.cornerMode = dataStore.readBool(currentSettings.cornerModeAddress);    
+            currentSettings.cornerMode = dataStore.readBool(currentSettings.cornerModeAddress);
+            currentSettings.valveMaxOpenSpeed = dataStore.readUShort(currentSettings.valveMaxOpenSpeedAddress);
+            currentSettings.fanMaxKmh = dataStore.readUShort(currentSettings.fanMaxKmhAddress);
+            currentSettings.fanPercentage = dataStore.readUShort(currentSettings.fanPercentageAddress);
             dataStore.end();
         }
 

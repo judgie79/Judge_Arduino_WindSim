@@ -14,6 +14,9 @@ private:
     SpeedFanControl fan;
     SpeedServoControl servo;
     uint8_t side;
+    uint8_t maxValveSpeed;
+    uint8_t maxFanKmh;
+    uint8_t fanPercentage;
 public:
     WindControl(uint8_t side);
     #if defined(ESP32)
@@ -23,10 +26,16 @@ public:
     #endif
     ~WindControl();
 
-    void openValve(uint16_t degree);
+    void openValve(uint16_t speed);
     void setFanSpeed(uint16_t speed);
 
     void setSpeed(uint16_t speed);
+
+    void setMaxFanKmh(uint16_t maxKmh);
+    void setMaxOpenValve(uint16_t maxSpeed);
+    void setFanPercentage(uint16_t percentage);
+
+    void setSettings(uint16_t maxFanKmh, uint16_t fanPercentage, uint16_t valveMaxOpenSpeed);
 };
 
 

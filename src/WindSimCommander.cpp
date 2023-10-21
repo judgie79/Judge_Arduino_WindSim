@@ -9,6 +9,16 @@ WindSimCommander::WindSimCommander(SettingsManager* settingsManager, WindControl
 	this->rightWind = rightWind;
 }
 
+void WindSimCommander::init() {
+
+	WindSimSettings storedSettings = this->settingsManager->loadSettings();
+	leftWind->setSettings(storedSettings.fanMaxKmh, storedSettings.fanPercentage, storedSettings.valveMaxOpenSpeed);
+	rightWind->setSettings(storedSettings.fanMaxKmh, storedSettings.fanPercentage, storedSettings.valveMaxOpenSpeed);
+
+	leftWind->setSpeed(0);
+	rightWind->setSpeed(0);
+}
+
 void WindSimCommander::readCmd(char key, const char * data, uint8_t valueLength)
 {        
 	switch (key)
@@ -41,10 +51,19 @@ void WindSimCommander::readCmd(char key, const char * data, uint8_t valueLength)
 			onResetSettingsCommand(data, valueLength);
 		}
 		break;
+
+	// case (char)CommandKey::HELLO:
+	// 	Commander::readCmd(key, data, valueLength);
+	// 	break;
 	default:
 		Commander::readCmd(key, data, valueLength);
 		break;
 	}
+}
+
+void WindSimCommander::onHelloCommand(const char * value) {
+	Commander::onHelloCommand(value);
+
 }
 
 void WindSimCommander::onGetDataCommand(const char * value, uint8_t valueLength)
@@ -54,27 +73,33 @@ void WindSimCommander::onGetDataCommand(const char * value, uint8_t valueLength)
 	// speed
 	// cornerspeed L
 	// cornerspeed R
-	uint8_t speed = getValue(value, valueLength, CommandValueSeparator, 0).toInt();
-	uint8_t speedStatic = getValue(value, valueLength, CommandValueSeparator, 1).toInt();
-	uint8_t speedLeft = getValue(value, valueLength, CommandValueSeparator, 2).toInt();
-	uint8_t speedRight = getValue(value, valueLength, CommandValueSeparator, 3).toInt();
+	uint16_t speed = getValue(value, valueLength, CommandValueSeparator, 0).toInt();
+	uint16_t speedStatic = getValue(value, valueLength, CommandValueSeparator, 1).toInt();
+	uint16_t speedLeft = getValue(value, valueLength, CommandValueSeparator, 2).toInt();
+	uint16_t speedRight = getValue(value, valueLength, CommandValueSeparator, 3).toInt();
+	bool gameIsRunning = getValue(value, valueLength, CommandValueSeparator, 4).toInt() == 1;
 
 	WindSimSettings settings = this->settingsManager->loadSettings();
 
-	if (settings.cockpitMode)
-	{
-		leftWind->setSpeed(speedStatic);
-		rightWind->setSpeed(speedStatic);
-	} else if (settings.cornerMode)
-	{
-		leftWind->setSpeed(speedLeft);
-		rightWind->setSpeed(speedRight);
-	} else 
-	{
-		leftWind->setSpeed(speed);
-		rightWind->setSpeed(speed);
+	if (!gameIsRunning) {
+		leftWind->setSpeed(0);
+		rightWind->setSpeed(0);
+	} else {
+		if (settings.cockpitMode)
+		{
+			leftWind->setSpeed(speedStatic);
+			rightWind->setSpeed(speedStatic);
+		} else if (settings.cornerMode)
+		{
+			leftWind->setSpeed(speedLeft);
+			rightWind->setSpeed(speedRight);
+		} else 
+		{
+			leftWind->setSpeed(speed);
+			rightWind->setSpeed(speed);
+		}
+		sendData();
 	}
-	sendData();
 }
 
 void WindSimCommander::sendData()
@@ -88,20 +113,32 @@ void WindSimCommander::onSetSettingsCommand(const char * value, uint8_t valueLen
 
 	settings.cockpitMode = getValue(value, valueLength, CommandValueSeparator, 0).toInt() == 1 ? true : false;
 	settings.cornerMode = getValue(value, valueLength, CommandValueSeparator, 1).toInt() == 1 ? true : false;
+
+	settings.valveMaxOpenSpeed = getValue(value, valueLength, CommandValueSeparator, 2).toInt();
+	settings.fanMaxKmh = getValue(value, valueLength, CommandValueSeparator, 3).toInt();
+	settings.fanPercentage = getValue(value, valueLength, CommandValueSeparator, 4).toInt();
 	
 	WindSimSettings storedSettings = this->settingsManager->writeSettings(settings);
+
+	leftWind->setSettings(storedSettings.fanMaxKmh, storedSettings.fanPercentage, storedSettings.valveMaxOpenSpeed);
+	rightWind->setSettings(storedSettings.fanMaxKmh, storedSettings.fanPercentage, storedSettings.valveMaxOpenSpeed);
 }
 
 void WindSimCommander::onGetSettingsCommand(const char * value, uint8_t valueLength)
 {
 	WindSimSettings settings = this->settingsManager->loadSettings();
-	// write back
-	char data[3] = "";
-	data[0] = settings.cockpitMode ? '1' : '0';
-	data[1] = (char)CommandValueSeparator;
-	data[2] = settings.cornerMode ? '1' : '0';
 
-	serialCmd->writeCommand((char)WindSimCommandKey::GETSETTINGS, data);
+	String t1 = String(settings.valveMaxOpenSpeed, 10);
+	String t2 = String(settings.fanMaxKmh, 10);
+	String t3 = String(settings.fanPercentage, 10);
+	
+	String temp = (settings.cockpitMode ? "1" : "0") + String((char)CommandValueSeparator) + 
+		(settings.cornerMode ? "1" : "0") + String((char)CommandValueSeparator) + 
+		t1 + 
+		String((char)CommandValueSeparator) + t2 + 
+		String((char)CommandValueSeparator) + t3;
+
+	serialCmd->writeCommand((char)WindSimCommandKey::GETSETTINGS, temp.c_str());
 }
 
 void WindSimCommander::onResetSettingsCommand(const char * value, uint8_t valueLength)
@@ -110,4 +147,8 @@ void WindSimCommander::onResetSettingsCommand(const char * value, uint8_t valueL
 	WindSimSettings storedSettings = this->settingsManager->resetSettings();
 	// write back
 	serialCmd->writeCommand(CommandKey::RECEIVED, CommandToken.c_str());
+
+	
+	leftWind->setSettings(storedSettings.fanMaxKmh, storedSettings.fanPercentage, storedSettings.valveMaxOpenSpeed);
+	rightWind->setSettings(storedSettings.fanMaxKmh, storedSettings.fanPercentage, storedSettings.valveMaxOpenSpeed);
 }
