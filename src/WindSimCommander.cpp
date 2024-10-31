@@ -68,11 +68,12 @@ void WindSimCommander::onHelloCommand(const char * value) {
 
 void WindSimCommander::onGetDataCommand(const char * value, uint8_t valueLength)
 {
-	// d#0,1,2,3
-	// running
+	// d#0,1,2,3,4
 	// speed
+	// speedStatic
 	// cornerspeed L
 	// cornerspeed R
+	// running
 	uint16_t speed = getValue(value, valueLength, CommandValueSeparator, 0).toInt();
 	uint16_t speedStatic = getValue(value, valueLength, CommandValueSeparator, 1).toInt();
 	uint16_t speedLeft = getValue(value, valueLength, CommandValueSeparator, 2).toInt();
